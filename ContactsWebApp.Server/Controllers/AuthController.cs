@@ -1,5 +1,6 @@
 ﻿using ContactsWebApp.Server.JwtFeatures;
 using ContactsWebApp.Server.Services.Abstract;
+using ContactsWebApp.Shared.DTOs;
 using ContactsWebApp.Shared.ResponseModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,10 @@ namespace ContactsWebApp.Server.Controllers
         private readonly IUserService _userService = userService;
 
         [HttpPost("login")]
-        public IActionResult Login(string email, string password)
+        public IActionResult Login(LoginRequestDto loginRequestDto)
         {
-            var user = _userService.GetUserByEmail(email);
-            if (user == null || !_userService.CheckPassword(user, password))
+            var user = _userService.GetUserByEmail(loginRequestDto.Email);
+            if (user == null || !_userService.CheckPassword(user, loginRequestDto.Password))
                 return Unauthorized(new ApiResponse(false, "Invalid Authentication"));
 
             var signingCredentials = _jwtHandler.GetSigningCredentials();
@@ -26,7 +27,7 @@ namespace ContactsWebApp.Server.Controllers
             var tokenOptions = _jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
-            return Ok(new ApiResponse<string>(true, "", token));
+            return Ok(new ApiResponse<LoginResponseDto>(true, "", new LoginResponseDto { Token = token, User = new UserDto { Email = user.Email, Name = user.Name, Surname = user.Surname } }));
         }
 
         [HttpPost("register")]

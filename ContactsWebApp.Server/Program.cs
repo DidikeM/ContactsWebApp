@@ -1,4 +1,7 @@
+using Blazored.LocalStorage;
 using ContactsWebApp.Server.JwtFeatures;
+using ContactsWebApp.Server.Services.Abstract;
+using ContactsWebApp.Server.Services.Concrete;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -14,6 +17,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<JwtHandler>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddBlazoredLocalStorage();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(opt =>
@@ -52,6 +58,7 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapRazorPages();
 app.MapControllers();

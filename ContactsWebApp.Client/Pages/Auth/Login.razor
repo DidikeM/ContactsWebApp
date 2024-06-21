@@ -1,0 +1,67 @@
+﻿@page "/login"
+@using System.Net.Http.Headers
+@layout AuthLayout
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <EditForm Model="@loginRequest" OnValidSubmit="LoginMethod">
+                <DataAnnotationsValidator />
+                <div class="form-group mt-5">
+                    <label for="email">Email</label>
+                    <InputText id="email" class="form-control" @bind-Value="loginRequest.Email" />
+                    @* <ValidationMessage For="@(() => loginRequest.Email)" /> *@
+                </div>
+                <div class="form-group mt-4">
+                    <label for="password">Password</label>
+                    <InputText id="password" class="form-control" type="password" @bind-Value="loginRequest.Password" />
+                    @* <ValidationMessage For="@(() => loginRequest.Password)" /> *@
+                </div>
+                <button type="submit" class="btn btn-primary mt-4">Login</button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    HttpClient httpClient { get; set; } = null!;
+
+    [Inject]
+    NavigationManager navigationManager { get; set; } = null!;
+
+    [Inject]
+    ILocalStorageService localStorage { get; set; } = null!;
+
+    [Inject]
+    AuthenticationStateProvider authenticationStateProvider { get; set; } = null!;
+
+    private LoginRequestDto loginRequest = new LoginRequestDto();
+
+    private async Task LoginMethod()
+    {
+        var response = await httpClient.PostAsJsonAsync("api/auth/login", loginRequest);
+        if (response.IsSuccessStatusCode)
+        {
+            var loginResponse = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
+            if (loginResponse == null || !loginResponse.IsSucces)
+            {
+                return;
+            }
+            await localStorage.SetItemAsync("token", loginResponse.Data.Token);
+            await localStorage.SetItemAsync("email", loginResponse.Data.User.Email);
+            await localStorage.SetItemAsync("Name", loginResponse.Data.User.Name);
+            await localStorage.SetItemAsync("Surname", loginResponse.Data.User.Surname);
+
+            (authenticationStateProvider as AuthStateProvider)!.NotifyUserAuthentication(loginResponse.Data.User.Email);
+
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.Data.Token);
+
+            navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            var error = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
+        }
+    }
+    }

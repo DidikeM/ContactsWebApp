@@ -17,8 +17,4 @@
     <ProjectReference Include="..\ContactsWebApp.Shared\ContactsWebApp.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\Concrete\" />
-  </ItemGroup>
-
 </Project>

@@ -6,7 +6,7 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <p>@email</p>
         </div>
 
         <article class="content px-4">
@@ -14,3 +14,28 @@
         </article>
     </main>
 </div>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authState { get; set; } = null!;
+
+    [Inject]
+    private ILocalStorageService localStorage { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager navigationManager { get; set; } = null!;
+
+    private string email = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        var authStateTask = await authState;
+        var user = authStateTask.User;
+        if (user.Identity!.IsAuthenticated)
+        {
+            email = (await localStorage.GetItemAsStringAsync("email"))!;
+        }
+        else
+        {
+            navigationManager.NavigateTo("/login");
+        }
+    }
+}
