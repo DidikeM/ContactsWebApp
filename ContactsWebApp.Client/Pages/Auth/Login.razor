@@ -19,6 +19,9 @@
                 </div>
                 <button type="submit" class="btn btn-primary mt-4">Login</button>
             </EditForm>
+            <div class="mt-4">
+                <p>Don't have an account? <a href="/register">Register</a></p>
+            </div>
         </div>
     </div>
 </div>
@@ -64,4 +67,4 @@
             var error = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
         }
     }
-    }
+}

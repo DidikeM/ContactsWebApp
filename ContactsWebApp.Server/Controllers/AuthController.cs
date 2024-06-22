@@ -1,5 +1,6 @@
-﻿using ContactsWebApp.Server.JwtFeatures;
+﻿using ContactsWebApp.Server.Models;
 using ContactsWebApp.Server.Services.Abstract;
+using ContactsWebApp.Server.Utils;
 using ContactsWebApp.Shared.DTOs;
 using ContactsWebApp.Shared.ResponseModels;
 using Microsoft.AspNetCore.Http;
@@ -31,9 +32,27 @@ namespace ContactsWebApp.Server.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register()
+        public IActionResult Register(RegisterRequestDto registerRequestDto)
         {
-            return Ok();
+            if (registerRequestDto.Email == null || registerRequestDto.Name == null || registerRequestDto.Surname == null || registerRequestDto.Password == null)
+            {
+                return BadRequest(new ApiResponse(false, "Validation Error"));
+            }
+
+            var user = new User
+            {
+                Name = registerRequestDto.Name,
+                Surname = registerRequestDto.Surname,
+                Email = registerRequestDto.Email,
+                Password = registerRequestDto.Password
+            };
+
+            if (_userService.CreateUser(user))
+            {
+                return Ok(new ApiResponse(true, "Registiration succesful"));
+            }
+
+            return BadRequest(new ApiResponse(false, "Server error"));
         }
 
         [HttpPost("logout")]

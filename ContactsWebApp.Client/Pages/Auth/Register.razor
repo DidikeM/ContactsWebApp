@@ -1,0 +1,66 @@
+﻿@page "/register"
+@using System.Net.Http.Headers
+@layout AuthLayout
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <EditForm Model="@registerRequest" OnValidSubmit="RegisterMethod">
+                <DataAnnotationsValidator />
+                <div class="form-group mt-5">
+                    <label for="name">Name</label>
+                    <InputText id="name" class="form-control" @bind-Value="registerRequest.Name" />
+                    @* <ValidationMessage For="@(() => loginRequest.Email)" /> *@
+                </div>
+                <div class="form-group mt-4">
+                    <label for="surname">Surname</label>
+                    <InputText id="surname" class="form-control" @bind-Value="registerRequest.Surname" />
+                    @* <ValidationMessage For="@(() => loginRequest.Email)" /> *@
+                </div>
+                <div class="form-group mt-4">
+                    <label for="email">Email</label>
+                    <InputText id="email" class="form-control" @bind-Value="registerRequest.Email" />
+                    @* <ValidationMessage For="@(() => loginRequest.Email)" /> *@
+                </div>
+                <div class="form-group mt-4">
+                    <label for="password">Password</label>
+                    <InputText id="password" class="form-control" type="password" @bind-Value="registerRequest.Password" />
+                    @* <ValidationMessage For="@(() => loginRequest.Password)" /> *@
+                </div>
+                <button type="submit" class="btn btn-primary mt-4">Register</button>
+            </EditForm>
+            <div class="mt-4">
+                <a href="/login">Go to Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    HttpClient httpClient { get; set; } = null!;
+
+    [Inject]
+    NavigationManager navigationManager { get; set; } = null!;
+
+    private RegisterRequestDto registerRequest = new RegisterRequestDto();
+
+    private async Task RegisterMethod()
+    {
+        var response = await httpClient.PostAsJsonAsync("api/auth/register", registerRequest);
+        if (response.IsSuccessStatusCode)
+        {
+            var loginResponse = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
+            if (loginResponse == null || !loginResponse.IsSucces)
+            {
+                return;
+            }
+
+            navigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            var error = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
+        }
+    }
+}

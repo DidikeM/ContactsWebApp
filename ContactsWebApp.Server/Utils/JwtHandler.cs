@@ -2,9 +2,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ContactsWebApp.Shared.Models;
+using ContactsWebApp.Server.Models;
 
-namespace ContactsWebApp.Server.JwtFeatures
+namespace ContactsWebApp.Server.Utils
 {
     public class JwtHandler(IConfiguration configuration)
     {

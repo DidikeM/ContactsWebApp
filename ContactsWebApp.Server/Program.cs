@@ -1,7 +1,7 @@
 using Blazored.LocalStorage;
-using ContactsWebApp.Server.JwtFeatures;
 using ContactsWebApp.Server.Services.Abstract;
 using ContactsWebApp.Server.Services.Concrete;
+using ContactsWebApp.Server.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -18,6 +18,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<JwtHandler>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<DatabaseInitializer>();
 
 builder.Services.AddBlazoredLocalStorage();
 
@@ -63,5 +64,8 @@ app.UseAuthentication();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+var databaseInitializer = app.Services.GetRequiredService<DatabaseInitializer>();
+await databaseInitializer.InitializeDatabaseAsync();
 
 app.Run();

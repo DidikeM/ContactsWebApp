@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ContactsWebApp.Shared.Models
+namespace ContactsWebApp.Shared.DTOs
 {
-    public class User
+    public class RegisterRequestDto
     {
-        public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Surname { get; set; } = null!;
         public string Email { get; set; } = null!;
