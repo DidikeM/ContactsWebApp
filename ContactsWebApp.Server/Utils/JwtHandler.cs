@@ -38,6 +38,7 @@ namespace ContactsWebApp.Server.Utils
                 signingCredentials: signingCredentials);
             return tokenOptions;
         }
+
         public JwtSecurityToken GenerateTokenOptions(List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(

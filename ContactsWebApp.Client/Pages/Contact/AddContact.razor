@@ -1,0 +1,49 @@
+﻿@inject HttpClient httpClient
+@inject IToastService toastService
+
+<EditForm Model="@contactDto" OnValidSubmit="AddContactMetod">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="contactDto.Name" />
+    </div>
+    <div class="form-group mt-4">
+        <label for="surname">Surname</label>
+        <InputText id="surname" class="form-control" @bind-Value="contactDto.Surname" />
+    </div>
+    <div class="form-group mt-4">
+        <label for="phone-number">Phone Number</label>
+        <InputText id="phone-number" class="form-control" @bind-Value="contactDto.PhoneNumber" />
+    </div>
+    <button type="submit" class="btn btn-primary mt-4">Add Contact</button>
+    <button class="btn btn-danger mt-4" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+
+@code {
+    [CascadingParameter] 
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    private ContactDto contactDto = new ContactDto();
+
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+
+    private async Task AddContactMetod()
+    {
+        var response = await httpClient.PostAsJsonAsync("api/Contact/add", contactDto);
+        if (response.IsSuccessStatusCode)
+        {
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse>();
+            if (apiResponse == null || !apiResponse.IsSucces)
+            {
+                toastService.ShowError(apiResponse?.Message!);
+                return;
+            }
+            await BlazoredModal.CloseAsync(ModalResult.Ok(apiResponse.Message));
+        }
+        else
+        {
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse>();
+        }
+    }
+}

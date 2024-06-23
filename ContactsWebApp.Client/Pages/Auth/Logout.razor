@@ -1,30 +1,21 @@
 ﻿@page "/logout"
+@inject ILocalStorageService localStorage
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+@inject HttpClient httpClient
 
 @code {
-    [Inject] 
-    ILocalStorageService LocalStorage { get; set; } = null!;
-
-    [Inject]
-    NavigationManager NavigationManager { get; set; } = null!;
-
-    [Inject]
-    AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
-
-    [Inject]
-    HttpClient HttpClient { get; set; } = null!;
-    
-
     async override protected Task OnInitializedAsync()
     {
-        await LocalStorage.RemoveItemAsync("token");
-        await LocalStorage.RemoveItemAsync("email");
-        await LocalStorage.RemoveItemAsync("Name");
-        await LocalStorage.RemoveItemAsync("Surname");
+        await localStorage.RemoveItemAsync("token");
+        await localStorage.RemoveItemAsync("email");
+        await localStorage.RemoveItemAsync("Name");
+        await localStorage.RemoveItemAsync("Surname");
 
-        (AuthenticationStateProvider as AuthStateProvider)!.NotifyUserLogout();
+        (authenticationStateProvider as AuthStateProvider)!.NotifyUserLogout();
 
-        HttpClient.DefaultRequestHeaders.Authorization = null;
+        httpClient.DefaultRequestHeaders.Authorization = null;
 
-        NavigationManager.NavigateTo("/login");
+        navigationManager.NavigateTo("/login");
     }
 }

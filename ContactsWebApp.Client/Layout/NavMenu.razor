@@ -1,6 +1,8 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">ContactsWebApp.Client</a>
+        <a class="navbar-brand" href="">Contacts
+            <span class="bi bi-person-fill" aria-hidden="true"></span>
+        </a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -16,7 +18,7 @@
                         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
                     </NavLink>
                 </div>
-                <div class="nav-item px-3">
+                @* <div class="nav-item px-3">
                     <NavLink class="nav-link" href="counter">
                         <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
                     </NavLink>
@@ -25,12 +27,16 @@
                     <NavLink class="nav-link" href="weather">
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
                     </NavLink>
+                </div> *@
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link align-items-start" href="contact-list">
+                        <span class="bi bi-people fs-4" aria-hidden="true"></span> Contacts
+                    </NavLink>
                 </div>
 
-
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="logout">
-                        <span class="bi bi-box-arrow-left" aria-hidden="true"></span> Logout
+                    <NavLink class="nav-link align-items-start" href="logout">
+                        <span class="bi bi-box-arrow-left fs-4" aria-hidden="true"></span> Logout
                     </NavLink>
                 </div>
             </Authorized>

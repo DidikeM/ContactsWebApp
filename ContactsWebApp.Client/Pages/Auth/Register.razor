@@ -1,6 +1,8 @@
 ﻿@page "/register"
-@using System.Net.Http.Headers
 @layout AuthLayout
+@inject NavigationManager navigationManager
+@inject HttpClient httpClient
+@inject IToastService toastService
 
 <div class="container">
     <div class="row justify-content-center">
@@ -37,11 +39,6 @@
 </div>
 
 @code {
-    [Inject]
-    HttpClient httpClient { get; set; } = null!;
-
-    [Inject]
-    NavigationManager navigationManager { get; set; } = null!;
 
     private RegisterRequestDto registerRequest = new RegisterRequestDto();
 
@@ -50,17 +47,17 @@
         var response = await httpClient.PostAsJsonAsync("api/auth/register", registerRequest);
         if (response.IsSuccessStatusCode)
         {
-            var loginResponse = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
-            if (loginResponse == null || !loginResponse.IsSucces)
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse>();
+            if (apiResponse == null || !apiResponse.IsSucces)
             {
+                toastService.ShowError(apiResponse?.Message!);
                 return;
             }
-
             navigationManager.NavigateTo("/login");
         }
         else
         {
-            var error = await response.Content.ReadFromJsonAsync<ApiResponse<LoginResponseDto>>();
+            toastService.ShowError("An error occurred while registering the user.");
         }
     }
 }

@@ -19,10 +19,8 @@ namespace ContactsWebApp.Server.Utils
 
             connection.ChangeDatabase(_databaseName);
 
-            // Gerekli tablolar var mı kontrol et
             if (!await TablesExistsAsync(connection))
             {
-                // Tablo oluştur
                 await CreateTablesAsync(connection);
             }
         }
@@ -52,7 +50,6 @@ namespace ContactsWebApp.Server.Utils
 
         private static async Task CreateTablesAsync(SqlConnection connection)
         {
-            // Users tablosunu oluştur
             var usersTableCommandText = @"
                 CREATE TABLE Users (
                     Id INT PRIMARY KEY IDENTITY,
@@ -66,7 +63,6 @@ namespace ContactsWebApp.Server.Utils
                 await command.ExecuteNonQueryAsync();
             }
 
-            // Contacts tablosunu oluştur
             var contactsTableCommandText = @"
                 CREATE TABLE Contacts (
                     Id INT PRIMARY KEY IDENTITY,

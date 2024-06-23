@@ -1,0 +1,54 @@
+﻿@inject HttpClient httpClient
+@inject IToastService toastService
+
+@* silmek istediğinize eminmisiniz *@
+<div class="form-group">
+    <label for="name">Name</label>
+    <label id="name" class="form-control">@ContactDto.Name</label>
+</div>
+<div class="form-group mt-4">
+    <label for="surname">Surname</label>
+    <label id="surname" class="form-control">@ContactDto.Surname</label>
+</div>
+<div class="form-group mt-4">
+    <label for="phone-number">Phone Number</label>
+    <label id="phone-number" class="form-control">@ContactDto.PhoneNumber</label>
+</div>
+
+<p class="mt-4">Are you sure you want to delete it?</p>
+
+<button class="btn btn-danger" @onclick="DeleteContactMetod">Delete Contact</button>
+<button class="btn btn-primary" @onclick="Cancel">Cancel</button>
+
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    // [Parameter]
+    // public string? ContactId { get; set; }
+
+    [Parameter]
+    public ContactDto ContactDto { get; set; } = new ContactDto();
+
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+
+    private async Task DeleteContactMetod()
+    {
+        var response = await httpClient.DeleteAsync($"api/Contact/Delete/{ContactDto.Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse>();
+            if (apiResponse == null || !apiResponse.IsSucces)
+            {
+                toastService.ShowError(apiResponse?.Message!);
+                return;
+            }
+            await BlazoredModal.CloseAsync(ModalResult.Ok(apiResponse.Message));
+        }
+        else
+        {
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse>();
+        }
+    }
+}

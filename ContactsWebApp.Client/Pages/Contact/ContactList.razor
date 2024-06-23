@@ -1,0 +1,125 @@
+﻿@page "/contact-list"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<h3>Contact List</h3>
+@if (contacts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Option</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contact in contacts)
+            {
+                <tr>
+                    <td>@contact.Name</td>
+                    <td>@contact.Surname</td>
+                    <td>@contact.PhoneNumber</td>
+                    <td>
+                        <button @onclick="() => ShowUpdateContactModal(contact)" class="btn btn-warning"><span class="bi bi-pencil"></span> Edit</button>
+                        <button @onclick="() => ShowDeleteContactModal(contact)" class="btn btn-danger"><span class="bi bi-trash"></span> Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<div class="row">
+    <div class="col">
+        <button @onclick="ShowAddContactModal" class="btn btn-success">Add Contact</button>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    private List<ContactDto> contacts = new List<ContactDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadList();
+    }
+
+    protected async Task LoadList()
+    {
+        var response = await HttpClient.GetAsync("api/contact/getall");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ContactDto>>>();
+
+
+            if (result != null && result.IsSucces)
+            {
+                contacts = result.Data;
+            }
+            else
+            {
+                ToastService.ShowError(result?.Message!);
+            }
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            NavigationManager.NavigateTo("/logout");
+        }
+        else
+        {
+            ToastService.ShowError("An error occurred while loading the list");
+        }
+    }
+
+    private async Task ShowAddContactModal()
+    {
+        var addContactModal = Modal.Show<AddContact>("Add Contact");
+        var result = await addContactModal.Result;
+        
+        if (result.Confirmed)
+        {
+            ToastService.ShowSuccess(result.Data?.ToString()!);
+            await LoadList();
+        }
+    }
+
+    private async Task ShowUpdateContactModal(ContactDto contact)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(UpdateContact.ContactDto), contact);
+
+        var updateContactModal = Modal.Show<UpdateContact>("Update Contact", parameters);
+        var result = await updateContactModal.Result;
+
+        if (result.Confirmed)
+        {
+            ToastService.ShowSuccess(result.Data?.ToString()!);
+            await LoadList();
+        }
+    }
+
+    private async Task ShowDeleteContactModal(ContactDto contact)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(DeleteContact.ContactDto), contact);
+
+        var deleteContactModal = Modal.Show<DeleteContact>("Delete Contact", parameters);
+        var result = await deleteContactModal.Result;
+
+        if (result.Confirmed)
+        {
+            ToastService.ShowSuccess(result.Data?.ToString()!);
+            await LoadList();
+        }
+    }
+}

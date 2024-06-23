@@ -26,19 +26,19 @@ namespace ContactsWebApp.Server.Services.Concrete
 
         public bool CreateUser(User user)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                connection.ChangeDatabase(_databaseName);
-                var command = new SqlCommand("INSERT INTO Users (Email, Password, Name, Surname) VALUES (@Email, @Password, @Name, @Surname)", connection);
-                command.Parameters.AddWithValue("@Email", user.Email);
-                command.Parameters.AddWithValue("@Password", user.Password);
-                command.Parameters.AddWithValue("@Name", user.Name);
-                command.Parameters.AddWithValue("@Surname", user.Surname);
+            using var connection = new SqlConnection(_connectionString);
 
-                int rowsAffected = command.ExecuteNonQuery();
-                return rowsAffected > 0;
-            }
+            connection.Open();
+            connection.ChangeDatabase(_databaseName);
+            var command = new SqlCommand("INSERT INTO Users (Email, Password, Name, Surname) VALUES (@Email, @Password, @Name, @Surname)", connection);
+            command.Parameters.AddWithValue("@Email", user.Email);
+            command.Parameters.AddWithValue("@Password", user.Password);
+            command.Parameters.AddWithValue("@Name", user.Name);
+            command.Parameters.AddWithValue("@Surname", user.Surname);
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            return rowsAffected > 0;
         }
 
         public User GetUserByEmail(string email)

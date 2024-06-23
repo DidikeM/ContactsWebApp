@@ -1,4 +1,6 @@
 using Blazored.LocalStorage;
+using Blazored.Modal;
+using Blazored.Toast;
 using ContactsWebApp.Server.Services.Abstract;
 using ContactsWebApp.Server.Services.Concrete;
 using ContactsWebApp.Server.Utils;
@@ -16,11 +18,17 @@ builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//builder.Services.AddConfigureMapping();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 builder.Services.AddScoped<JwtHandler>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddSingleton<DatabaseInitializer>();
 
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazoredModal();
+builder.Services.AddBlazoredToast();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(opt =>
@@ -43,6 +51,7 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -58,8 +67,8 @@ app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

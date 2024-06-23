@@ -1,4 +1,5 @@
-﻿using ContactsWebApp.Server.Models;
+﻿using AutoMapper;
+using ContactsWebApp.Server.Models;
 using ContactsWebApp.Server.Services.Abstract;
 using ContactsWebApp.Server.Utils;
 using ContactsWebApp.Shared.DTOs;
@@ -11,11 +12,8 @@ namespace ContactsWebApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(JwtHandler jwtHandler, IUserService userService) : ControllerBase
+    public class AuthController(JwtHandler _jwtHandler, IUserService _userService, IMapper _mapper) : ControllerBase
     {
-        private readonly JwtHandler _jwtHandler = jwtHandler;
-        private readonly IUserService _userService = userService;
-
         [HttpPost("login")]
         public IActionResult Login(LoginRequestDto loginRequestDto)
         {
@@ -28,7 +26,8 @@ namespace ContactsWebApp.Server.Controllers
             var tokenOptions = _jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
-            return Ok(new ApiResponse<LoginResponseDto>(true, "", new LoginResponseDto { Token = token, User = new UserDto { Email = user.Email, Name = user.Name, Surname = user.Surname } }));
+            var userDto = _mapper.Map<UserDto>(user);
+            return Ok(new ApiResponse<LoginResponseDto>(true, new LoginResponseDto { Token = token, User = userDto }));
         }
 
         [HttpPost("register")]
@@ -39,13 +38,7 @@ namespace ContactsWebApp.Server.Controllers
                 return BadRequest(new ApiResponse(false, "Validation Error"));
             }
 
-            var user = new User
-            {
-                Name = registerRequestDto.Name,
-                Surname = registerRequestDto.Surname,
-                Email = registerRequestDto.Email,
-                Password = registerRequestDto.Password
-            };
+            var user = _mapper.Map<User>(registerRequestDto);
 
             if (_userService.CreateUser(user))
             {
